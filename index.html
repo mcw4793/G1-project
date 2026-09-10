@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starting a Recycling Project</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+    background: #f4f7f2;
+    color: #26352b;
+  }
+
+  .app {
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  header {
+    background: #315c43;
+    color: white;
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 18px;
+  }
+
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+  }
+
+  header p {
+    margin: 0;
+    line-height: 1.5;
+    opacity: 0.95;
+  }
+
+  .progress-wrap {
+    margin-top: 18px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 7px;
+  }
+
+  .progress {
+    height: 9px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #d9f26a;
+    transition: width 0.3s ease;
+  }
+
+  .screen {
+    display: none;
+  }
+
+  .screen.active {
+    display: block;
+  }
+
+  .card {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(37, 61, 45, 0.08);
+    margin-bottom: 16px;
+  }
+
+  .stage-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .stage-number {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #dcefdc;
+    color: #315c43;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+  }
+
+  .instruction {
+    color: #647169;
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  .story {
+    background: #f7faf6;
+    border-left: 5px solid #7fae78;
+    padding: 17px 18px;
+    border-radius: 10px;
+    line-height: 1.7;
+    margin: 18px 0;
+  }
+
+  .expression-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .expression-btn {
+    background: #fff;
+    border: 2px solid #d6e2d6;
+    border-radius: 13px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #315c43;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+
+  .expression-btn:hover {
+    border-color: #7fae78;
+    transform: translateY(-1px);
+  }
+
+  .expression-btn.selected {
+    border-color: #315c43;
+    background: #eaf4e9;
+  }
+
+  .meaning-box {
+    min-height: 120px;
+    margin-top: 15px;
+    padding: 17px;
+    border-radius: 12px;
+    background: #f1f5f1;
+    display: none;
+    line-height: 1.6;
+  }
+
+  .meaning-box.show {
+    display: block;
+  }
+
+  .meaning-expression {
+    font-size: 19px;
+    font-weight: bold;
+    color: #315c43;
+    margin-bottom: 7px;
+  }
+
+  .meaning-label {
+    font-weight: bold;
+    color: #46564b;
+  }
+
+  .korean {
+    color: #68736b;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  .example-box {
+    margin-top: 10px;
+    padding: 11px 13px;
+    background: white;
+    border-radius: 9px;
+    border: 1px solid #dce5dc;
+  }
+
+  .example-english {
+    font-weight: 500;
+    line-height: 1.55;
+  }
+
+  .translation {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #d5ddd5;
+    color: #4f6355;
+    line-height: 1.55;
+  }
+
+  .translation.show {
+    display: block;
+  }
+
+  .translation-btn {
+    margin-top: 10px;
+    background: #edf3ec;
+    color: #315c43;
+    border: 1px solid #cbdacb;
+    border-radius: 8px;
+    padding: 7px 11px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .translation-btn:hover {
+    background: #e2ece1;
+  }
+
+  button.primary,
+  button.secondary {
+    border: none;
+    border-radius: 11px;
+    padding: 13px 21px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  button.primary {
+    background: #315c43;
+    color: white;
+  }
+
+  button.primary:hover {
+    background: #264a35;
+  }
+
+  button.secondary {
+    background: #e9eee9;
+    color: #315c43;
+  }
+
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .bottom-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .score {
+    font-weight: bold;
+    color: #315c43;
+  }
+
+  /* Quiz */
+
+  .question-count {
+    font-size: 13px;
+    color: #738078;
+    margin-bottom: 8px;
+  }
+
+  .question {
+    font-size: 20px;
+    line-height: 1.55;
+    margin: 10px 0 20px;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 11px;
+  }
+
+  .choice {
+    background: white;
+    border: 2px solid #d9e2d9;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .choice:hover:not(:disabled) {
+    border-color: #7fae78;
+  }
+
+  .choice.correct {
+    background: #e5f4e4;
+    border-color: #5b9860;
+  }
+
+  .choice.wrong {
+    background: #fff0ed;
+    border-color: #d47b6e;
+  }
+
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 15px;
+    border-radius: 11px;
+    line-height: 1.5;
+  }
+
+  .feedback.show {
+    display: block;
+  }
+
+  .feedback.correct-feedback {
+    background: #eaf6e8;
+    color: #32603a;
+  }
+
+  .feedback.wrong-feedback {
+    background: #fff1ee;
+    color: #8a4439;
+  }
+
+  .hint {
+    margin-top: 14px;
+    background: #fff8df;
+    border: 1px solid #eadb9d;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #695d2c;
+    font-size: 14px;
+    display: none;
+  }
+
+  .hint.show {
+    display: block;
+  }
+
+  /* Challenge */
+
+  .situation {
+    background: #f6faf5;
+    padding: 18px;
+    border-radius: 12px;
+    line-height: 1.65;
+    margin-bottom: 18px;
+  }
+
+  .select-sentence {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 2px solid #d8e1d8;
+    font-size: 15px;
+    background: white;
+    margin-bottom: 10px;
+  }
+
+  /* Mastery */
+
+  .mastery-intro {
+    background: #f5faf3;
+    border-radius: 13px;
+    padding: 18px;
+    line-height: 1.6;
+    margin: 18px 0;
+  }
+
+  .definition-box {
+    background: #eef6ed;
+    border: 2px solid #d4e5d1;
+    border-radius: 14px;
+    padding: 24px;
+    margin: 18px 0;
+    text-align: center;
+  }
+
+  .definition-label {
+    font-size: 13px;
+    color: #6b786e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .definition {
+    font-size: 21px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: #2f4938;
+  }
+
+  .typing-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ccdacc;
+    border-radius: 11px;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+    margin-top: 8px;
+  }
+
+  .typing-input:focus {
+    border-color: #315c43;
+  }
+
+  .typing-input.correct-input {
+    border-color: #5b9860;
+    background: #eef8ec;
+  }
+
+  .typing-input.wrong-input {
+    border-color: #d47b6e;
+    background: #fff2ef;
+  }
+
+  .type-feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 10px;
+    line-height: 1.5;
+  }
+
+  .type-feedback.show {
+    display: block;
+  }
+
+  .type-feedback.correct-feedback {
+    background: #eaf6e8;
+    color: #32603a;
+  }
+
+  .type-feedback.wrong-feedback {
+    background: #fff0ed;
+    color: #8a4439;
+  }
+
+  .mastery-progress {
+    display: flex;
+    gap: 6px;
+    margin: 16px 0;
+  }
+
+  .mastery-dot {
+    height: 7px;
+    flex: 1;
+    border-radius: 10px;
+    background: #dce5dc;
+  }
+
+  .mastery-dot.done {
+    background: #6c9d6b;
+  }
+
+  /* Result */
+
+  .result {
+    text-align: center;
+    padding: 25px;
+  }
+
+  .final-score {
+    font-size: 44px;
+    font-weight: bold;
+    color: #315c43;
+    margin: 10px 0;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 7px 13px;
+    background: #e5f1df;
+    border-radius: 20px;
+    color: #315c43;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .review-list {
+    text-align: left;
+    margin-top: 18px;
+  }
+
+  .review-item {
+    padding: 12px;
+    border-bottom: 1px solid #e4e9e4;
+    line-height: 1.5;
+  }
+
+  .check {
+    color: #3d7d45;
+    font-weight: bold;
+  }
+
+  .timer {
+    background: rgba(255,255,255,0.18);
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .perfect-box {
+    background: #edf7eb;
+    border: 2px solid #cfe4ca;
+    border-radius: 13px;
+    padding: 17px;
+    margin: 18px 0;
+    color: #315c43;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 650px) {
+
+    .expression-grid,
+    .choices {
+      grid-template-columns: 1fr;
+    }
+
+    header h1 {
+      font-size: 23px;
+    }
+
+    .card {
+      padding: 19px;
+    }
+
+    .question {
+      font-size: 18px;
+    }
+
+    .bottom-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .bottom-actions button {
+      width: 100%;
+    }
+
+  }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+
+  <header>
+
+    <h1>♻️ Starting a Recycling Project</h1>
+
+    <p>
+      Learn six useful expressions and use them in a school recycling project.
+    </p>
+
+    <div class="timer">
+      ⏱ Suggested time: about 10 minutes
+    </div>
+
+    <div class="progress-wrap">
+
+      <div class="progress-label">
+        <span id="progressText">Step 1 of 4</span>
+        <span id="scoreText">Score: 0</span>
+      </div>
+
+      <div class="progress">
+        <div
+          class="progress-bar"
+          id="progressBar">
+        </div>
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       SCREEN 1: LEARN
+  ========================== -->
+
+  <section
+    class="screen active"
+    id="screen1">
+
+    <div class="card">
+
+      <div class="stage-title">
+
+        <div class="stage-number">
+          1
+        </div>
+
+        <div>
+          <h2>Meet the expressions</h2>
+        </div>
+
+      </div>
+
+      <p class="instruction">
+        Click each expression. Read its meaning and example sentence.
+        Then check the Korean translation if you need help.
+      </p>
+
+
+      <div class="story">
+
+        <strong>Recycling Project</strong><br>
+
+        A group of students wanted to
+        <strong>find out</strong> how much waste
+        their school produced each day. They decided to
+        <strong>set up</strong> recycling boxes for paper and plastic.
+        They also asked classmates to
+        <strong>sort out</strong> their waste carefully.
+        At first, many students did not
+        <strong>pay attention to</strong> the recycling signs,
+        so the team <strong>came up with</strong> a simple points game.
+        With more students joining the project, the team was able to
+        <strong>carry out</strong> the plan for an entire month.
+
+      </div>
+
+
+      <div class="expression-grid">
+
+        <button
+          class="expression-btn"
+          onclick="showMeaning('find out', this)">
+          find out
+        </button>
+
+        <button
+          class="expression-btn"
+          onclick="showMeaning('set up', this)">
+          set up
+        </button>
+
+        <button
+          class="expression-btn"
+          onclick="showMeaning('sort out', this)">
+          sort out
+        </button>
+
+        <button
+          class="expression-btn"
+          onclick="showMeaning('pay attention to', this)">
+          pay attention to
+        </button>
+
+        <button
+          class="expression-btn"
+          onclick="showMeaning('come up with', this)">
+          come up with
+        </button>
+
+        <button
+          class="expression-btn"
+          onclick="showMeaning('carry out', this)">
+          carry out
+        </button>
+
+      </div>
+
+
+      <div
+        class="meaning-box"
+        id="meaningBox">
+      </div>
+
+
+      <div class="bottom-actions">
+
+        <span
+          class="score"
+          id="exploreStatus">
+          Explore all 6 expressions
+        </span>
+
+        <button
+          class="primary"
+          id="toStage2"
+          disabled
+          onclick="goToStage(2)">
+          Start the quiz →
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       SCREEN 2: QUIZ
+  ========================== -->
+
+  <section
+    class="screen"
+    id="screen2">
+
+    <div class="card">
+
+      <div class="stage-title">
+
+        <div class="stage-number">
+          2
+        </div>
+
+        <div>
+          <h2>Choose the best expression</h2>
+        </div>
+
+      </div>
+
+      <p class="instruction">
+        Read the situation and choose the expression that fits best.
+      </p>
+
+      <div id="quizArea"></div>
+
+
+      <div class="bottom-actions">
+
+        <span
+          class="score"
+          id="quizScore">
+          0 / 6 correct
+        </span>
+
+        <button
+          class="primary"
+          id="nextQuestion"
+          disabled
+          onclick="nextQuestion()">
+          Next →
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       SCREEN 3: USE IT
+  ========================== -->
+
+  <section
+    class="screen"
+    id="screen3">
+
+    <div class="card">
+
+      <div class="stage-title">
+
+        <div class="stage-number">
+          3
+        </div>
+
+        <div>
+          <h2>Use it yourself</h2>
+        </div>
+
+      </div>
+
+      <p class="instruction">
+        Complete each situation with the expression that makes the most sense.
+      </p>
+
+      <div id="challengeArea"></div>
+
+
+      <div class="bottom-actions">
+
+        <span
+          class="score"
+          id="challengeScore">
+          0 / 3 correct
+        </span>
+
+        <button
+          class="primary"
+          id="finishBtn"
+          disabled
+          onclick="finishStageThree()">
+          Finish →
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       SCREEN 4: TYPING TEST
+  ========================== -->
+
+  <section
+    class="screen"
+    id="screen4">
+
+    <div class="card">
+
+      <div class="stage-title">
+
+        <div class="stage-number">
+          4
+        </div>
+
+        <div>
+          <h2>Type it!</h2>
+        </div>
+
+      </div>
+
+
+      <div class="perfect-box">
+
+        🎉 <strong>100% complete!</strong><br>
+
+        You got every question correct.
+        Now let's see if you can remember the expressions
+        without answer choices.
+
+      </div>
+
+
+      <div class="mastery-intro">
+
+        Read the English definition and type the expression
+        that matches it.
+
+        <br><br>
+
+        <strong>Tip:</strong>
+        Type the complete expression, including spaces.
+
+      </div>
+
+
+      <div class="mastery-progress">
+
+        <div
+          class="mastery-dot"
+          id="dot0">
+        </div>
+
+        <div
+          class="mastery-dot"
+          id="dot1">
+        </div>
+
+        <div
+          class="mastery-dot"
+          id="dot2">
+        </div>
+
+        <div
+          class="mastery-dot"
+          id="dot3">
+        </div>
+
+        <div
+          class="mastery-dot"
+          id="dot4">
+        </div>
+
+        <div
+          class="mastery-dot"
+          id="dot5">
+        </div>
+
+      </div>
+
+
+      <div id="typingArea"></div>
+
+
+      <div class="bottom-actions">
+
+        <span
+          class="score"
+          id="typingScore">
+          0 / 6 correct
+        </span>
+
+        <button
+          class="primary"
+          id="typingNext"
+          disabled
+          onclick="nextTypingQuestion()">
+          Check →
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       SCREEN 5: FINAL RESULT
+  ========================== -->
+
+  <section
+    class="screen"
+    id="screen5">
+
+    <div class="card result">
+
+      <div class="badge">
+        ♻️ Recycling Project Complete!
+      </div>
+
+      <h2>Excellent work!</h2>
+
+      <div
+        class="final-score"
+        id="finalScore">
+        0%
+      </div>
+
+      <p id="finalMessage"></p>
+
+
+      <div class="perfect-box">
+
+        🏆 You completed the full learning cycle:
+
+        <br><br>
+
+        <strong>
+          Learn → Choose → Use → Recall
+        </strong>
+
+      </div>
+
+
+      <div
+        class="review-list"
+        id="reviewList">
+      </div>
+
+
+      <div style="margin-top:22px;">
+
+        <button
+          class="primary"
+          onclick="restartActivity()">
+          Try again
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   TARGET EXPRESSIONS
+========================================= */
+
+const meanings = {
+
+  "find out": {
+    meaning:
+      "to get information or discover something",
+    korean:
+      "알아내다, 알아보다",
+    example:
+      "We want to find out how much waste our school produces.",
+    translation:
+      "우리 학교가 얼마나 많은 쓰레기를 배출하는지 알아내고 싶다."
+  },
+
+  "set up": {
+    meaning:
+      "to put something in place or arrange something so it can be used",
+    korean:
+      "설치하다, 마련하다",
+    example:
+      "They set up recycling boxes near the cafeteria.",
+    translation:
+      "그들은 급식실 근처에 재활용 상자를 설치했다."
+  },
+
+  "sort out": {
+    meaning:
+      "to separate things into groups or organize them",
+    korean:
+      "분류하다, 정리하다",
+    example:
+      "Students sort out paper and plastic.",
+    translation:
+      "학생들은 종이와 플라스틱을 분류한다."
+  },
+
+  "pay attention to": {
+    meaning:
+      "to watch, listen to, or think carefully about something",
+    korean:
+      "~에 주의를 기울이다",
+    example:
+      "Please pay attention to the recycling signs.",
+    translation:
+      "재활용 표지판에 주의를 기울여 주세요."
+  },
+
+  "come up with": {
+    meaning:
+      "to think of an idea, plan, or solution",
+    korean:
+      "생각해 내다",
+    example:
+      "The team came up with a points game.",
+    translation:
+      "그 팀은 점수 게임을 생각해 냈다."
+  },
+
+  "carry out": {
+    meaning:
+      "to do or complete a plan, task, or activity",
+    korean:
+      "실행하다, 수행하다",
+    example:
+      "The students carried out the recycling plan for a month.",
+    translation:
+      "학생들은 한 달 동안 재활용 계획을 실행했다."
+  }
+
+};
+
+
+/* =========================================
+   STAGE 2 QUESTIONS
+========================================= */
+
+const quizQuestions = [
+
+  {
+    sentence:
+      "The students wanted to _____ how much trash the school produced.",
+
+    answer:
+      "find out",
+
+    choices: [
+      "find out",
+      "set up",
+      "sort out",
+      "carry out"
+    ],
+
+    explanation:
+      "They want to discover information, so we use <strong>find out</strong>."
+  },
+
+
+  {
+    sentence:
+      "The students _____ recycling boxes near the school entrance.",
+
+    answer:
+      "set up",
+
+    choices: [
+      "set up",
+      "came up with",
+      "paid attention to",
+      "found out"
+    ],
+
+    explanation:
+      "They put recycling boxes in place, so we use <strong>set up</strong>."
+  },
+
+
+  {
+    sentence:
+      "Students need to _____ paper, plastic, and other waste.",
+
+    answer:
+      "sort out",
+
+    choices: [
+      "sort out",
+      "carry out",
+      "find out",
+      "come up with"
+    ],
+
+    explanation:
+      "They separate different kinds of waste, so we use <strong>sort out</strong>."
+  },
+
+
+  {
+    sentence:
+      "Please _____ the signs before you throw your bottle away.",
+
+    answer:
+      "pay attention to",
+
+    choices: [
+      "pay attention to",
+      "set up",
+      "sort out",
+      "carry out"
+    ],
+
+    explanation:
+      "The students need to look at the signs carefully, so we use <strong>pay attention to</strong>."
+  },
+
+
+  {
+    sentence:
+      "The team _____ a fun points game to encourage students.",
+
+    answer:
+      "came up with",
+
+    choices: [
+      "came up with",
+      "carried out",
+      "found out",
+      "sorted out"
+    ],
+
+    explanation:
+      "They thought of a new idea, so we use <strong>come up with</strong>."
+  },
+
+
+  {
+    sentence:
+      "The team _____ the recycling plan for an entire month.",
+
+    answer:
+      "carried out",
+
+    choices: [
+      "carried out",
+      "found out",
+      "set up",
+      "paid attention to"
+    ],
+
+    explanation:
+      "They actually did and completed the plan, so we use <strong>carry out</strong>."
+  }
+
+];
+
+
+/* =========================================
+   STAGE 3 QUESTIONS
+========================================= */
+
+const challenges = [
+
+  {
+    situation:
+      "Your teacher asks you to discover how much plastic waste your class produces.",
+
+    answer:
+      "find out",
+
+    options: [
+      "find out",
+      "set up",
+      "pay attention to",
+      "carry out"
+    ]
+  },
+
+
+  {
+    situation:
+      "You and your friends think of a new idea: a recycling points game.",
+
+    answer:
+      "come up with",
+
+    options: [
+      "sort out",
+      "come up with",
+      "set up",
+      "find out"
+    ]
+  },
+
+
+  {
+    situation:
+      "Your team actually does the recycling plan every day for one month.",
+
+    answer:
+      "carry out",
+
+    options: [
+      "pay attention to",
+      "sort out",
+      "carry out",
+      "come up with"
+    ]
+  }
+
+];
+
+
+/* =========================================
+   STAGE 4 TYPING QUESTIONS
+
+   The definition is shown.
+   Students must recall the expression.
+========================================= */
+
+const typingQuestions = [
+
+  {
+    definition:
+      "to get information or discover something",
+
+    answer:
+      "find out"
+  },
+
+
+  {
+    definition:
+      "to put something in place or arrange something so it can be used",
+
+    answer:
+      "set up"
+  },
+
+
+  {
+    definition:
+      "to separate things into groups or organize them",
+
+    answer:
+      "sort out"
+  },
+
+
+  {
+    definition:
+      "to watch, listen to, or think carefully about something",
+
+    answer:
+      "pay attention to"
+  },
+
+
+  {
+    definition:
+      "to think of an idea, plan, or solution",
+
+    answer:
+      "come up with"
+  },
+
+
+  {
+    definition:
+      "to do or complete a plan, task, or activity",
+
+    answer:
+      "carry out"
+  }
+
+];
+
+
+/* =========================================
+   STATE
+========================================= */
+
+let explored = new Set();
+
+let currentQuestion = 0;
+let quizCorrect = 0;
+
+let currentChallenge = 0;
+let challengeCorrect = 0;
+
+let currentTyping = 0;
+let typingCorrect = 0;
+
+let answeredQuiz = false;
+let answeredChallenge = false;
+let answeredTyping = false;
+
+
+/* =========================================
+   STAGE 1
+========================================= */
+
+function showMeaning(expression, button) {
+
+  document.querySelectorAll(".expression-btn")
+    .forEach(btn => {
+      btn.classList.remove("selected");
+    });
+
+  button.classList.add("selected");
+
+
+  const data = meanings[expression];
+
+  const box =
+    document.getElementById("meaningBox");
+
+
+  box.innerHTML = `
+
+    <div class="meaning-expression">
+      ${expression}
+    </div>
+
+    <div>
+      <span class="meaning-label">
+        Meaning:
+      </span>
+
+      ${data.meaning}
+    </div>
+
+    <div class="korean">
+      ${data.korean}
+    </div>
+
+
+    <div class="example-box">
+
+      <div class="meaning-label">
+        Example
+      </div>
+
+      <div class="example-english">
+        ${data.example}
+      </div>
+
+
+      <button
+        class="translation-btn"
+        id="translationBtn"
+        onclick="toggleTranslation()">
+        한국어 해석 보기
+      </button>
+
+
+      <div
+        class="translation"
+        id="translation">
+
+        <strong>해석:</strong>
+        ${data.translation}
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  box.classList.add("show");
+
+  explored.add(expression);
+
+
+  if (explored.size === 6) {
+
+    document.getElementById("toStage2").disabled = false;
+
+    document.getElementById("exploreStatus").textContent =
+      "✓ All 6 expressions explored";
+
+  } else {
+
+    document.getElementById("exploreStatus").textContent =
+      `${explored.size} / 6 expressions explored`;
+
+  }
+
+}
+
+
+/* =========================================
+   TRANSLATION TOGGLE
+========================================= */
+
+function toggleTranslation() {
+
+  const translation =
+    document.getElementById("translation");
+
+  const button =
+    document.getElementById("translationBtn");
+
+
+  if (!translation || !button) {
+    return;
+  }
+
+
+  translation.classList.toggle("show");
+
+
+  if (translation.classList.contains("show")) {
+
+    button.textContent =
+      "한국어 해석 숨기기";
+
+  } else {
+
+    button.textContent =
+      "한국어 해석 보기";
+
+  }
+
+}
+
+
+/* =========================================
+   PROGRESS
+========================================= */
+
+function updateProgress(stage) {
+
+  const percentages = {
+
+    1: 10,
+    2: 40,
+    3: 70,
+    4: 85,
+    5: 100
+
+  };
+
+
+  document.getElementById("progressBar").style.width =
+    percentages[stage] + "%";
+
+
+  const progressText =
+    document.getElementById("progressText");
+
+
+  if (stage === 5) {
+
+    progressText.textContent =
+      "Complete!";
+
+  } else {
+
+    progressText.textContent =
+      `Step ${stage} of 4`;
+
+  }
+
+
+  document.getElementById("scoreText").textContent =
+    `Score: ${quizCorrect + challengeCorrect + typingCorrect}`;
+
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function goToStage(stage) {
+
+  document.querySelectorAll(".screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+
+  document.getElementById("screen" + stage)
+    .classList.add("active");
+
+
+  updateProgress(stage);
+
+
+  if (stage === 2) {
+
+    currentQuestion = 0;
+    quizCorrect = 0;
+
+    renderQuestion();
+
+  }
+
+
+  if (stage === 3) {
+
+    currentChallenge = 0;
+    challengeCorrect = 0;
+
+    renderChallenge();
+
+  }
+
+
+  if (stage === 4) {
+
+    currentTyping = 0;
+    typingCorrect = 0;
+
+    renderTypingQuestion();
+
+  }
+
+}
+
+
+/* =========================================
+   STAGE 2: QUIZ
+========================================= */
+
+function renderQuestion() {
+
+  const q =
+    quizQuestions[currentQuestion];
+
+
+  answeredQuiz = false;
+
+
+  const quizArea =
+    document.getElementById("quizArea");
+
+
+  quizArea.innerHTML = `
+
+    <div class="question-count">
+      Question ${currentQuestion + 1}
+      of ${quizQuestions.length}
+    </div>
+
+
+    <div class="question">
+      ${q.sentence}
+    </div>
+
+
+    <div class="choices">
+
+      ${q.choices.map(choice => `
+
+        <button
+          class="choice"
+          onclick="answerQuiz('${choice.replace(/'/g, "\\'")}', this)">
+
+          ${choice}
+
+        </button>
+
+      `).join("")}
+
+    </div>
+
+
+    <div
+      class="feedback"
+      id="quizFeedback">
+    </div>
+
+
+    <div
+      class="hint"
+      id="quizHint">
+
+      💡 Think about what the person is trying
+      to do in this situation.
+
+    </div>
+
+  `;
+
+
+  document.getElementById("nextQuestion").disabled = true;
+
+
+  document.getElementById("quizScore").textContent =
+    `${quizCorrect} / ${quizQuestions.length} correct`;
+
+}
+
+
+function answerQuiz(choice, button) {
+
+  if (answeredQuiz) {
+    return;
+  }
+
+
+  answeredQuiz = true;
+
+
+  const q =
+    quizQuestions[currentQuestion];
+
+
+  const buttons =
+    document.querySelectorAll(".choice");
+
+
+  buttons.forEach(btn => {
+    btn.disabled = true;
+  });
+
+
+  const feedback =
+    document.getElementById("quizFeedback");
+
+
+  const hint =
+    document.getElementById("quizHint");
+
+
+  if (choice === q.answer) {
+
+    quizCorrect++;
+
+    button.classList.add("correct");
+
+
+    feedback.className =
+      "feedback show correct-feedback";
+
+
+    feedback.innerHTML =
+      `✓ <strong>Correct!</strong>
+       ${q.explanation}`;
+
+  } else {
+
+    button.classList.add("wrong");
+
+
+    buttons.forEach(btn => {
+
+      if (btn.textContent.trim() === q.answer) {
+        btn.classList.add("correct");
+      }
+
+    });
+
+
+    feedback.className =
+      "feedback show wrong-feedback";
+
+
+    feedback.innerHTML =
+      `✗ <strong>Not quite.</strong>
+       The best answer is
+       <strong>${q.answer}</strong>.<br>
+       ${q.explanation}`;
+
+
+    hint.classList.add("show");
+
+  }
+
+
+  document.getElementById("quizScore").textContent =
+    `${quizCorrect} / ${quizQuestions.length} correct`;
+
+
+  updateProgress(2);
+
+
+  document.getElementById("nextQuestion").disabled = false;
+
+}
+
+
+function nextQuestion() {
+
+  currentQuestion++;
+
+
+  if (currentQuestion < quizQuestions.length) {
+
+    renderQuestion();
+
+  } else {
+
+    goToStage(3);
+
+  }
+
+}
+
+
+/* =========================================
+   STAGE 3: USE IT
+========================================= */
+
+function renderChallenge() {
+
+  const c =
+    challenges[currentChallenge];
+
+
+  answeredChallenge = false;
+
+
+  const area =
+    document.getElementById("challengeArea");
+
+
+  area.innerHTML = `
+
+    <div class="question-count">
+      Challenge ${currentChallenge + 1}
+      of ${challenges.length}
+    </div>
+
+
+    <div class="situation">
+
+      <strong>Situation:</strong><br>
+
+      ${c.situation}
+
+    </div>
+
+
+    <select
+      class="select-sentence"
+      id="challengeSelect">
+
+      <option value="">
+        Choose an expression...
+      </option>
+
+      ${c.options.map(option => `
+
+        <option value="${option}">
+          ${option}
+        </option>
+
+      `).join("")}
+
+    </select>
+
+
+    <button
+      class="primary"
+      id="challengeCheckBtn"
+      onclick="checkChallenge()">
+
+      Check answer
+
+    </button>
+
+
+    <div
+      class="feedback"
+      id="challengeFeedback">
+    </div>
+
+  `;
+
+
+  document.getElementById("challengeScore").textContent =
+    `${challengeCorrect} / ${challenges.length} correct`;
+
+
+  document.getElementById("finishBtn").disabled = true;
+
+}
+
+
+function checkChallenge() {
+
+  if (answeredChallenge) {
+    return;
+  }
+
+
+  const select =
+    document.getElementById("challengeSelect");
+
+
+  const choice =
+    select.value;
+
+
+  if (!choice) {
+    return;
+  }
+
+
+  answeredChallenge = true;
+
+
+  const c =
+    challenges[currentChallenge];
+
+
+  const feedback =
+    document.getElementById("challengeFeedback");
+
+
+  select.disabled = true;
+
+
+  if (choice === c.answer) {
+
+    challengeCorrect++;
+
+
+    feedback.className =
+      "feedback show correct-feedback";
+
+
+    feedback.innerHTML =
+      `✓ <strong>Great!</strong>
+       <strong>${c.answer}</strong>
+       is the best expression here.`;
+
+  } else {
+
+    feedback.className =
+      "feedback show wrong-feedback";
+
+
+    feedback.innerHTML =
+      `✗ The best expression is
+       <strong>${c.answer}</strong>.
+       Think about what the people are doing
+       in the situation.`;
+
+  }
+
+
+  document.getElementById("challengeScore").textContent =
+    `${challengeCorrect} / ${challenges.length} correct`;
+
+
+  updateProgress(3);
+
+
+  const button =
+    document.getElementById("challengeCheckBtn");
+
+
+  if (currentChallenge < challenges.length - 1) {
+
+    button.textContent =
+      "Next challenge →";
+
+
+    button.onclick = function() {
+
+      currentChallenge++;
+
+      renderChallenge();
+
+    };
+
+  } else {
+
+    document.getElementById("finishBtn").disabled = false;
+
+  }
+
+}
+
+
+/* =========================================
+   STAGE 3 FINISH
+========================================= */
+
+function finishStageThree() {
+
+  const totalQuestions =
+    quizQuestions.length + challenges.length;
+
+
+  const totalCorrect =
+    quizCorrect + challengeCorrect;
+
+
+  const percentage =
+    Math.round(
+      (totalCorrect / totalQuestions) * 100
+    );
+
+
+  /*
+    IMPORTANT:
+    The typing test is unlocked ONLY
+    when the learner has achieved 100%.
+  */
+
+  if (percentage === 100) {
+
+    goToStage(4);
+
+  } else {
+
+    showIncompleteResult();
+
+  }
+
+}
+
+
+/* =========================================
+   IF NOT 100%
+========================================= */
+
+function showIncompleteResult() {
+
+  document.querySelectorAll(".screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+
+  document.getElementById("screen5")
+    .classList.add("active");
+
+
+  updateProgress(5);
+
+
+  const total =
+    quizQuestions.length + challenges.length;
+
+
+  const correct =
+    quizCorrect + challengeCorrect;
+
+
+  const percentage =
+    Math.round((correct / total) * 100);
+
+
+  document.getElementById("finalScore").textContent =
+    `${percentage}%`;
+
+
+  document.querySelector("#screen5 h2").textContent =
+    "Good effort!";
+
+
+  document.getElementById("finalMessage").textContent =
+    `You answered ${correct} out of ${total} questions correctly. Review the expressions you missed and try again to unlock the typing test.`;
+
+
+  document.querySelector(".perfect-box").innerHTML = `
+
+    📚 <strong>Keep practicing!</strong><br><br>
+
+    You need <strong>100%</strong> on the first three stages
+    to unlock the final typing test.
+
+  `;
+
+
+  document.getElementById("reviewList").innerHTML = `
+
+    <div class="review-item">
+      <span class="check">find out</span>
+      — discover or get information
+    </div>
+
+    <div class="review-item">
+      <span class="check">set up</span>
+      — put something in place
+    </div>
+
+    <div class="review-item">
+      <span class="check">sort out</span>
+      — separate or organize things
+    </div>
+
+    <div class="review-item">
+      <span class="check">pay attention to</span>
+      — watch or think carefully about something
+    </div>
+
+    <div class="review-item">
+      <span class="check">come up with</span>
+      — think of an idea or solution
+    </div>
+
+    <div class="review-item">
+      <span class="check">carry out</span>
+      — do or complete a plan
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================
+   STAGE 4: TYPING TEST
+========================================= */
+
+function renderTypingQuestion() {
+
+  const q =
+    typingQuestions[currentTyping];
+
+
+  answeredTyping = false;
+
+
+  const area =
+    document.getElementById("typingArea");
+
+
+  area.innerHTML = `
+
+    <div class="question-count">
+      Expression ${currentTyping + 1}
+      of ${typingQuestions.length}
+    </div>
+
+
+    <div class="definition-box">
+
+      <div class="definition-label">
+        English definition
+      </div>
+
+      <div class="definition">
+        ${q.definition}
+      </div>
+
+    </div>
+
+
+    <input
+      type="text"
+      class="typing-input"
+      id="typingInput"
+      placeholder="Type the expression here"
+      autocomplete="off"
+      spellcheck="false"
+      onkeydown="handleTypingKey(event)"
+    >
+
+
+    <div
+      class="type-feedback"
+      id="typeFeedback">
+    </div>
+
+  `;
+
+
+  document.getElementById("typingScore").textContent =
+    `${typingCorrect} / ${typingQuestions.length} correct`;
+
+
+  const button =
+    document.getElementById("typingNext");
+
+
+  button.disabled = false;
+
+  button.textContent =
+    "Check →";
+
+
+  setTimeout(() => {
+
+    document.getElementById("typingInput").focus();
+
+  }, 100);
+
+
+  updateMasteryDots();
+
+}
+
+
+function normalizeAnswer(text) {
+
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+}
+
+
+function checkTypingAnswer() {
+
+  if (answeredTyping) {
+    return;
+  }
+
+
+  const input =
+    document.getElementById("typingInput");
+
+
+  const feedback =
+    document.getElementById("typeFeedback");
+
+
+  const q =
+    typingQuestions[currentTyping];
+
+
+  const userAnswer =
+    normalizeAnswer(input.value);
+
+
+  if (!userAnswer) {
+    input.focus();
+    return;
+  }
+
+
+  answeredTyping = true;
+
+
+  const correctAnswer =
+    normalizeAnswer(q.answer);
+
+
+  input.disabled = true;
+
+
+  if (userAnswer === correctAnswer) {
+
+    typingCorrect++;
+
+
+    input.classList.add("correct-input");
+
+
+    feedback.className =
+      "type-feedback show correct-feedback";
+
+
+    feedback.innerHTML =
+      `✓ <strong>Correct!</strong>
+       You typed <strong>${q.answer}</strong>.`;
+
+  } else {
+
+    input.classList.add("wrong-input");
+
+
+    feedback.className =
+      "type-feedback show wrong-feedback";
+
+
+    feedback.innerHTML =
+      `✗ The correct expression is
+       <strong>${q.answer}</strong>.`;
+
+  }
+
+
+  document.getElementById("typingScore").textContent =
+    `${typingCorrect} / ${typingQuestions.length} correct`;
+
+
+  const button =
+    document.getElementById("typingNext");
+
+
+  if (currentTyping < typingQuestions.length - 1) {
+
+    button.textContent =
+      "Next →";
+
+  } else {
+
+    button.textContent =
+      "See my result →";
+
+  }
+
+
+  updateMasteryDots();
+
+  updateProgress(4);
+
+}
+
+
+function nextTypingQuestion() {
+
+  if (!answeredTyping) {
+
+    checkTypingAnswer();
+
+    return;
+
+  }
+
+
+  currentTyping++;
+
+
+  if (currentTyping < typingQuestions.length) {
+
+    renderTypingQuestion();
+
+  } else {
+
+    finishTypingTest();
+
+  }
+
+}
+
+
+function handleTypingKey(event) {
+
+  if (event.key === "Enter") {
+
+    event.preventDefault();
+
+    nextTypingQuestion();
+
+  }
+
+}
+
+
+/* =========================================
+   MASTERY DOTS
+========================================= */
+
+function updateMasteryDots() {
+
+  for (let i = 0; i < typingQuestions.length; i++) {
+
+    const dot =
+      document.getElementById("dot" + i);
+
+
+    if (i < currentTyping) {
+
+      dot.classList.add("done");
+
+    } else {
+
+      dot.classList.remove("done");
+
+    }
+
+  }
+
+}
+
+
+/* =========================================
+   FINAL RESULT AFTER TYPING
+========================================= */
+
+function finishTypingTest() {
+
+  document.querySelectorAll(".screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+
+  document.getElementById("screen5")
+    .classList.add("active");
+
+
+  updateProgress(5);
+
+
+  const percentage =
+    Math.round(
+      (typingCorrect / typingQuestions.length) * 100
+    );
+
+
+  document.getElementById("finalScore").textContent =
+    `${percentage}%`;
+
+
+  document.querySelector("#screen5 h2").textContent =
+    "Excellent work!";
+
+
+  let message;
+
+
+  if (percentage === 100) {
+
+    message =
+      "Perfect! You can recall all six target expressions without answer choices.";
+
+  } else if (percentage >= 70) {
+
+    message =
+      "Great job! You can recall most of the expressions independently.";
+
+  } else {
+
+    message =
+      "Good effort! Review the expressions and try the typing test again.";
+
+  }
+
+
+  document.getElementById("finalMessage").textContent =
+    message;
+
+
+  document.querySelector(".perfect-box").innerHTML = `
+
+    🏆 <strong>Full learning cycle completed!</strong><br><br>
+
+    You first learned the expressions,
+    then used them in context,
+    and finally recalled them from their definitions.
+
+  `;
+
+
+  document.getElementById("reviewList").innerHTML = `
+
+    <div class="review-item">
+      <span class="check">find out</span>
+      — discover or get information
+    </div>
+
+    <div class="review-item">
+      <span class="check">set up</span>
+      — put something in place
+    </div>
+
+    <div class="review-item">
+      <span class="check">sort out</span>
+      — separate or organize things
+    </div>
+
+    <div class="review-item">
+      <span class="check">pay attention to</span>
+      — watch or think carefully about something
+    </div>
+
+    <div class="review-item">
+      <span class="check">come up with</span>
+      — think of an idea or solution
+    </div>
+
+    <div class="review-item">
+      <span class="check">carry out</span>
+      — do or complete a plan
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================
+   RESTART
+========================================= */
+
+function restartActivity() {
+
+  explored = new Set();
+
+  currentQuestion = 0;
+  quizCorrect = 0;
+
+  currentChallenge = 0;
+  challengeCorrect = 0;
+
+  currentTyping = 0;
+  typingCorrect = 0;
+
+  answeredQuiz = false;
+  answeredChallenge = false;
+  answeredTyping = false;
+
+
+  document.getElementById("meaningBox")
+    .classList.remove("show");
+
+
+  document.querySelectorAll(".expression-btn")
+    .forEach(btn => {
+      btn.classList.remove("selected");
+    });
+
+
+  document.getElementById("toStage2").disabled = true;
+
+
+  document.getElementById("exploreStatus").textContent =
+    "Explore all 6 expressions";
+
+
+  document.querySelector("#screen5 h2").textContent =
+    "Excellent work!";
+
+
+  goToStage(1);
+
+}
+
+
+/* =========================================
+   INITIAL STATE
+========================================= */
+
+updateProgress(1);
+
+</script>
+
+</body>
+</html>
