@@ -1,0 +1,1377 @@
+# G1-project
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Festival Booth Mystery</title>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f5f1ea;
+        color: #2f2f2f;
+    }
+
+    .app {
+        max-width: 900px;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    header {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 22px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #4c4036;
+    }
+
+    .subtitle {
+        margin: 6px 0 0;
+        color: #777;
+        font-size: 14px;
+    }
+
+    .progress-area {
+        margin-top: 16px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: #777;
+        margin-bottom: 6px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 9px;
+        background: #e6e0d8;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 25%;
+        background: #8d7661;
+        transition: width 0.3s ease;
+    }
+
+    .timer {
+        background: #f0e9df;
+        padding: 8px 13px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        color: #5d4d3e;
+    }
+
+    .screen {
+        display: none;
+        background: white;
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        animation: fadeIn 0.25s ease;
+    }
+
+    .screen.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stage-title {
+        font-size: 23px;
+        margin: 0 0 7px;
+        color: #4c4036;
+    }
+
+    .stage-description {
+        margin-top: 0;
+        color: #666;
+        line-height: 1.5;
+    }
+
+    .story-box {
+        background: #f8f5f0;
+        border-left: 5px solid #8d7661;
+        border-radius: 10px;
+        padding: 18px;
+        line-height: 1.75;
+        margin: 20px 0;
+    }
+
+    .expression {
+        font-weight: bold;
+        color: #725d49;
+    }
+
+    .expression-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .expression-card {
+        border: 1px solid #ddd5cc;
+        border-radius: 12px;
+        padding: 15px;
+        background: #fffdfb;
+    }
+
+    .expression-card h3 {
+        margin: 0 0 7px;
+        font-size: 17px;
+        color: #604f40;
+    }
+
+    .meaning {
+        font-size: 14px;
+        margin-bottom: 7px;
+    }
+
+    .example {
+        font-size: 13px;
+        color: #777;
+        line-height: 1.5;
+    }
+
+    .question-number {
+        font-size: 13px;
+        color: #8d7661;
+        font-weight: bold;
+        margin-bottom: 7px;
+    }
+
+    .question {
+        font-size: 20px;
+        line-height: 1.5;
+        margin: 0 0 18px;
+    }
+
+    .options {
+        display: grid;
+        gap: 10px;
+    }
+
+    button {
+        font-family: inherit;
+    }
+
+    .option {
+        border: 2px solid #e1d9d0;
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .option:hover {
+        background: #f8f4ef;
+        border-color: #b9a592;
+    }
+
+    .option.selected {
+        border-color: #8d7661;
+        background: #f3ede6;
+    }
+
+    .option.correct {
+        border-color: #69856d;
+        background: #edf5ee;
+    }
+
+    .option.incorrect {
+        border-color: #a66c61;
+        background: #f8eeee;
+    }
+
+    .feedback {
+        display: none;
+        margin-top: 15px;
+        padding: 13px 15px;
+        border-radius: 10px;
+        line-height: 1.5;
+        font-size: 14px;
+    }
+
+    .feedback.show {
+        display: block;
+    }
+
+    .feedback.correct {
+        background: #edf5ee;
+        color: #426248;
+    }
+
+    .feedback.incorrect {
+        background: #f8eeee;
+        color: #794d45;
+    }
+
+    .hint-box {
+        display: none;
+        background: #f5f0e9;
+        padding: 12px 14px;
+        border-radius: 10px;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #66574b;
+    }
+
+    .hint-box.show {
+        display: block;
+    }
+
+    .button-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        gap: 10px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .primary-btn {
+        background: #6f5c4b;
+        color: white;
+    }
+
+    .primary-btn:hover {
+        background: #5c4b3c;
+    }
+
+    .secondary-btn {
+        background: #eee8e1;
+        color: #5c4d40;
+    }
+
+    .secondary-btn:hover {
+        background: #e4dbd1;
+    }
+
+    .primary-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    .match-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 20px;
+    }
+
+    .match-column h3 {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 10px;
+    }
+
+    .match-item {
+        padding: 13px;
+        border: 2px solid #e1d9d0;
+        border-radius: 10px;
+        margin-bottom: 9px;
+        cursor: pointer;
+        background: white;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .match-item:hover {
+        background: #faf7f3;
+    }
+
+    .match-item.selected {
+        border-color: #8d7661;
+        background: #f3ede6;
+    }
+
+    .match-item.matched {
+        border-color: #78927b;
+        background: #eef5ef;
+        cursor: default;
+    }
+
+    .match-message {
+        min-height: 24px;
+        margin-top: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .scenario {
+        background: #f8f5f0;
+        padding: 18px;
+        border-radius: 12px;
+        margin: 18px 0;
+        line-height: 1.7;
+    }
+
+    .score-box {
+        text-align: center;
+        padding: 25px;
+        background: #f8f5f0;
+        border-radius: 15px;
+        margin: 20px 0;
+    }
+
+    .big-score {
+        font-size: 48px;
+        font-weight: bold;
+        color: #6f5c4b;
+        margin: 5px 0;
+    }
+
+    .result-list {
+        margin-top: 20px;
+    }
+
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 11px 13px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+
+    .result-item:last-child {
+        border-bottom: none;
+    }
+
+    .result-status {
+        font-weight: bold;
+    }
+
+    .success {
+        color: #54745b;
+    }
+
+    .review {
+        color: #956052;
+    }
+
+    .tip {
+        background: #f4eee7;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 18px;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+
+    .mini-note {
+        font-size: 12px;
+        color: #888;
+        margin-top: 8px;
+    }
+
+    @media (max-width: 650px) {
+        .app {
+            padding: 10px;
+        }
+
+        .screen {
+            padding: 20px;
+        }
+
+        .expression-grid,
+        .match-container {
+            grid-template-columns: 1fr;
+        }
+
+        h1 {
+            font-size: 23px;
+        }
+
+        .question {
+            font-size: 18px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+        <div class="top-row">
+            <div>
+                <h1>🎪 Festival Booth Mystery</h1>
+                <p class="subtitle">Can you help Mina make the English booth a success?</p>
+            </div>
+            <div class="timer" id="timer">10:00</div>
+        </div>
+
+        <div class="progress-area">
+            <div class="progress-label">
+                <span id="stageLabel">Stage 1 of 4</span>
+                <span id="scoreLabel">Score: 0</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STAGE 1 -->
+    <section class="screen active" id="stage1">
+        <h2 class="stage-title">Stage 1 — Discover the Expressions</h2>
+        <p class="stage-description">
+            Read the festival story and learn six useful expressions.
+            Try to notice what each expression means in context.
+        </p>
+
+        <div class="story-box">
+            Our class is preparing for the school festival.
+            Mina is <span class="expression">in charge of</span> the English booth.
+            She asked everyone to <span class="expression">take part in</span> a short quiz game.
+            At first, the team could not <span class="expression">figure out</span> how to make the activity interesting.
+            They decided to <span class="expression">work on</span> a mystery theme.
+            After testing the game, they decided to <span class="expression">cut down on</span> long instructions.
+            They hope these changes will <span class="expression">make a difference</span> for the students who visit the booth.
+        </div>
+
+        <div class="expression-grid">
+
+            <div class="expression-card">
+                <h3>1. in charge of</h3>
+                <div class="meaning">= responsible for something</div>
+                <div class="example">Mina is in charge of the English booth.</div>
+            </div>
+
+            <div class="expression-card">
+                <h3>2. take part in</h3>
+                <div class="meaning">= participate in / join an activity</div>
+                <div class="example">Everyone can take part in the quiz.</div>
+            </div>
+
+            <div class="expression-card">
+                <h3>3. figure out</h3>
+                <div class="meaning">= understand or find the answer to something</div>
+                <div class="example">We need to figure out the answer.</div>
+            </div>
+
+            <div class="expression-card">
+                <h3>4. work on</h3>
+                <div class="meaning">= spend time improving or developing something</div>
+                <div class="example">We are working on a new game.</div>
+            </div>
+
+            <div class="expression-card">
+                <h3>5. cut down on</h3>
+                <div class="meaning">= reduce the amount of something</div>
+                <div class="example">Let's cut down on the long instructions.</div>
+            </div>
+
+            <div class="expression-card">
+                <h3>6. make a difference</h3>
+                <div class="meaning">= have a positive or important effect</div>
+                <div class="example">Small changes can make a difference.</div>
+            </div>
+
+        </div>
+
+        <div class="button-row">
+            <span class="mini-note">Tip: Focus on the meaning, not just the Korean translation.</span>
+            <button class="primary-btn" onclick="goToStage(2)">Start Matching →</button>
+        </div>
+    </section>
+
+
+    <!-- STAGE 2 -->
+    <section class="screen" id="stage2">
+        <h2 class="stage-title">Stage 2 — Match It!</h2>
+        <p class="stage-description">
+            Match each expression with its correct meaning.
+            Click one expression and then click its meaning.
+        </p>
+
+        <div class="match-container">
+
+            <div class="match-column">
+                <h3>EXPRESSIONS</h3>
+
+                <div class="match-item" data-type="expression" data-id="1">
+                    in charge of
+                </div>
+
+                <div class="match-item" data-type="expression" data-id="2">
+                    take part in
+                </div>
+
+                <div class="match-item" data-type="expression" data-id="3">
+                    figure out
+                </div>
+
+                <div class="match-item" data-type="expression" data-id="4">
+                    work on
+                </div>
+
+                <div class="match-item" data-type="expression" data-id="5">
+                    cut down on
+                </div>
+
+                <div class="match-item" data-type="expression" data-id="6">
+                    make a difference
+                </div>
+            </div>
+
+            <div class="match-column">
+                <h3>MEANINGS</h3>
+
+                <div class="match-item" data-type="meaning" data-id="3">
+                    understand or find an answer
+                </div>
+
+                <div class="match-item" data-type="meaning" data-id="6">
+                    have an important effect
+                </div>
+
+                <div class="match-item" data-type="meaning" data-id="2">
+                    participate in an activity
+                </div>
+
+                <div class="match-item" data-type="meaning" data-id="5">
+                    reduce the amount of something
+                </div>
+
+                <div class="match-item" data-type="meaning" data-id="1">
+                    be responsible for something
+                </div>
+
+                <div class="match-item" data-type="meaning" data-id="4">
+                    spend time improving something
+                </div>
+            </div>
+
+        </div>
+
+        <div class="match-message" id="matchMessage"></div>
+
+        <div class="button-row">
+            <button class="secondary-btn" onclick="showHint('matchHint')">💡 Hint</button>
+            <button class="primary-btn" id="matchNext" onclick="goToStage(3)" disabled>
+                Continue →
+            </button>
+        </div>
+
+        <div class="hint-box" id="matchHint">
+            Think about the festival story. For example, if someone is responsible for the booth,
+            they are <b>in charge of</b> it.
+        </div>
+    </section>
+
+
+    <!-- STAGE 3 -->
+    <section class="screen" id="stage3">
+        <h2 class="stage-title">Stage 3 — Choose the Best Expression</h2>
+        <p class="stage-description">
+            Read each festival situation and choose the expression that fits best.
+        </p>
+
+        <div id="stage3Question"></div>
+
+        <div class="button-row">
+            <button class="secondary-btn" onclick="showHint('stage3Hint')">💡 Hint</button>
+            <button class="primary-btn" id="stage3Next" onclick="nextStage3Question()" disabled>
+                Check →
+            </button>
+        </div>
+
+        <div class="hint-box" id="stage3Hint"></div>
+    </section>
+
+
+    <!-- STAGE 4 -->
+    <section class="screen" id="stage4">
+        <h2 class="stage-title">Stage 4 — Final Challenge</h2>
+        <p class="stage-description">
+            New situations! Choose the expression that makes the most sense.
+            This time, there are no clues from the original story.
+        </p>
+
+        <div id="stage4Question"></div>
+
+        <div class="button-row">
+            <button class="secondary-btn" onclick="showHint('stage4Hint')">💡 Hint</button>
+            <button class="primary-btn" id="stage4Next" onclick="nextStage4Question()" disabled>
+                Check →
+            </button>
+        </div>
+
+        <div class="hint-box" id="stage4Hint"></div>
+    </section>
+
+
+    <!-- RESULT -->
+    <section class="screen" id="result">
+        <h2 class="stage-title">🎉 Mystery Solved!</h2>
+        <p class="stage-description">
+            You helped Mina prepare the English booth.
+            Here is your learning result.
+        </p>
+
+        <div class="score-box">
+            <div>Your Score</div>
+            <div class="big-score" id="finalScore">0%</div>
+            <div id="finalMessage"></div>
+        </div>
+
+        <div class="result-list" id="resultList"></div>
+
+        <div class="tip">
+            <b>Remember:</b><br>
+            • <b>in charge of</b> → responsible<br>
+            • <b>take part in</b> → participate<br>
+            • <b>figure out</b> → understand/find the answer<br>
+            • <b>work on</b> → spend time improving<br>
+            • <b>cut down on</b> → reduce<br>
+            • <b>make a difference</b> → have an important effect
+        </div>
+
+        <div class="button-row">
+            <span class="mini-note">Great job! Try using one expression in your next English sentence.</span>
+            <button class="primary-btn" onclick="restartActivity()">Try Again ↻</button>
+        </div>
+    </section>
+
+</div>
+
+
+<script>
+
+let score = 0;
+let totalQuestions = 0;
+let answeredQuestions = 0;
+
+let timerSeconds = 600;
+let timerInterval;
+
+const expressionResults = {
+    "in charge of": false,
+    "take part in": false,
+    "figure out": false,
+    "work on": false,
+    "cut down on": false,
+    "make a difference": false
+};
+
+const stage3Questions = [
+    {
+        expression: "in charge of",
+        sentence: "Mina is responsible for the English booth. She is ______ the booth.",
+        options: ["in charge of", "taking part in", "cutting down on", "figuring out"],
+        answer: 0,
+        explanation: "“In charge of” means responsible for something.",
+        hint: "Think: Who is responsible for the booth?"
+    },
+    {
+        expression: "take part in",
+        sentence: "All students are welcome to ______ the quiz game.",
+        options: ["work on", "make a difference", "take part in", "figure out"],
+        answer: 2,
+        explanation: "“Take part in” means participate in an activity.",
+        hint: "Think: The students join the quiz."
+    },
+    {
+        expression: "figure out",
+        sentence: "The students don't know how the mystery game works. They need to ______ the rules.",
+        options: ["figure out", "cut down on", "take part in", "be in charge of"],
+        answer: 0,
+        explanation: "“Figure out” means understand or find the answer to something.",
+        hint: "Think: They need to understand the rules."
+    },
+    {
+        expression: "work on",
+        sentence: "The team wants to improve their game, so they will ______ it after school.",
+        options: ["take part in", "work on", "make a difference", "cut down on"],
+        answer: 1,
+        explanation: "“Work on” means spend time improving or developing something.",
+        hint: "Think: They spend time improving the game."
+    },
+    {
+        expression: "cut down on",
+        sentence: "The instructions are too long. We should ______ the number of words.",
+        options: ["figure out", "take part in", "cut down on", "work on"],
+        answer: 2,
+        explanation: "“Cut down on” means reduce the amount of something.",
+        hint: "Think: They want fewer words."
+    },
+    {
+        expression: "make a difference",
+        sentence: "Changing the instructions may ______ for students who visit the booth.",
+        options: ["be in charge of", "take part in", "make a difference", "figure out"],
+        answer: 2,
+        explanation: "“Make a difference” means have an important or positive effect.",
+        hint: "Think: The change can have a positive effect."
+    }
+];
+
+const stage4Questions = [
+    {
+        expression: "in charge of",
+        sentence: "Jin is ______ the class party. He decides what food to buy and what games to play.",
+        options: ["in charge of", "working on", "taking part in", "cutting down on"],
+        answer: 0,
+        explanation: "Jin is responsible for the party, so he is in charge of it.",
+        hint: "He is responsible for organizing the party."
+    },
+    {
+        expression: "take part in",
+        sentence: "Would you like to ______ our school basketball competition?",
+        options: ["figure out", "take part in", "make a difference", "work on"],
+        answer: 1,
+        explanation: "You take part in an activity when you participate in it.",
+        hint: "The question asks if you want to participate."
+    },
+    {
+        expression: "figure out",
+        sentence: "I don't understand this math problem. Can you help me ______ the answer?",
+        options: ["cut down on", "work on", "figure out", "take part in"],
+        answer: 2,
+        explanation: "You figure out an answer when you find or understand it.",
+        hint: "You are trying to find the answer."
+    },
+    {
+        expression: "work on",
+        sentence: "Our group needs to ______ our presentation before Friday.",
+        options: ["work on", "make a difference", "take part in", "be in charge of"],
+        answer: 0,
+        explanation: "“Work on” means spend time improving or developing something.",
+        hint: "The group needs to spend time improving the presentation."
+    },
+    {
+        expression: "cut down on",
+        sentence: "I spend too much time on my phone, so I want to ______ my screen time.",
+        options: ["figure out", "cut down on", "take part in", "work on"],
+        answer: 1,
+        explanation: "“Cut down on” means reduce the amount of something.",
+        hint: "The speaker wants less screen time."
+    },
+    {
+        expression: "make a difference",
+        sentence: "Helping one new student feel welcome can ______ in their school life.",
+        options: ["take part in", "work on", "make a difference", "figure out"],
+        answer: 2,
+        explanation: "“Make a difference” means have an important or positive effect.",
+        hint: "Think about having a positive effect."
+    }
+];
+
+let stage3Index = 0;
+let stage4Index = 0;
+
+let stage3Answered = false;
+let stage4Answered = false;
+
+function startTimer() {
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+        timerSeconds--;
+
+        if (timerSeconds <= 0) {
+            timerSeconds = 0;
+            clearInterval(timerInterval);
+            showResult();
+        }
+
+        updateTimer();
+    }, 1000);
+}
+
+function updateTimer() {
+    const minutes = Math.floor(timerSeconds / 60);
+    const seconds = timerSeconds % 60;
+
+    document.getElementById("timer").textContent =
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0");
+}
+
+function updateHeader(stage) {
+    document.getElementById("stageLabel").textContent =
+        "Stage " + stage + " of 4";
+
+    document.getElementById("scoreLabel").textContent =
+        "Score: " + score;
+
+    document.getElementById("progressFill").style.width =
+        (stage * 25) + "%";
+}
+
+function goToStage(stage) {
+
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+    });
+
+    document.getElementById("stage" + stage).classList.add("active");
+
+    updateHeader(stage);
+
+    if (stage === 2) {
+        initializeMatching();
+    }
+
+    if (stage === 3) {
+        stage3Index = 0;
+        stage3Answered = false;
+        renderStage3();
+    }
+
+    if (stage === 4) {
+        stage4Index = 0;
+        stage4Answered = false;
+        renderStage4();
+    }
+}
+
+function initializeMatching() {
+
+    const items = document.querySelectorAll(".match-item");
+
+    items.forEach(item => {
+        item.classList.remove("selected", "matched");
+        item.onclick = () => selectMatchItem(item);
+    });
+
+    selectedExpression = null;
+    selectedMeaning = null;
+
+    document.getElementById("matchMessage").textContent = "";
+    document.getElementById("matchNext").disabled = true;
+}
+
+let selectedExpression = null;
+let selectedMeaning = null;
+let matchedPairs = 0;
+
+function selectMatchItem(item) {
+
+    if (item.classList.contains("matched")) return;
+
+    if (item.dataset.type === "expression") {
+
+        document.querySelectorAll('[data-type="expression"]').forEach(el => {
+            el.classList.remove("selected");
+        });
+
+        item.classList.add("selected");
+        selectedExpression = item;
+
+    } else {
+
+        document.querySelectorAll('[data-type="meaning"]').forEach(el => {
+            el.classList.remove("selected");
+        });
+
+        item.classList.add("selected");
+        selectedMeaning = item;
+    }
+
+    if (selectedExpression && selectedMeaning) {
+
+        if (selectedExpression.dataset.id === selectedMeaning.dataset.id) {
+
+            selectedExpression.classList.remove("selected");
+            selectedMeaning.classList.remove("selected");
+
+            selectedExpression.classList.add("matched");
+            selectedMeaning.classList.add("matched");
+
+            selectedExpression.onclick = null;
+            selectedMeaning.onclick = null;
+
+            matchedPairs++;
+
+            score++;
+            totalQuestions++;
+
+            document.getElementById("scoreLabel").textContent =
+                "Score: " + score;
+
+            document.getElementById("matchMessage").textContent =
+                "✓ Correct! Keep going.";
+
+            document.getElementById("matchMessage").style.color =
+                "#54745b";
+
+            selectedExpression = null;
+            selectedMeaning = null;
+
+            if (matchedPairs === 6) {
+                document.getElementById("matchMessage").textContent =
+                    "🎉 All six expressions matched correctly!";
+
+                document.getElementById("matchNext").disabled = false;
+            }
+
+        } else {
+
+            document.getElementById("matchMessage").textContent =
+                "Not quite. Try another combination.";
+
+            document.getElementById("matchMessage").style.color =
+                "#956052";
+
+            setTimeout(() => {
+                if (selectedExpression) {
+                    selectedExpression.classList.remove("selected");
+                }
+
+                if (selectedMeaning) {
+                    selectedMeaning.classList.remove("selected");
+                }
+
+                selectedExpression = null;
+                selectedMeaning = null;
+            }, 500);
+        }
+    }
+}
+
+function showHint(id) {
+    const element = document.getElementById(id);
+    element.classList.toggle("show");
+}
+
+function renderStage3() {
+
+    const container = document.getElementById("stage3Question");
+    const q = stage3Questions[stage3Index];
+
+    stage3Answered = false;
+
+    document.getElementById("stage3Next").disabled = true;
+    document.getElementById("stage3Next").textContent = "Check →";
+
+    document.getElementById("stage3Hint").classList.remove("show");
+    document.getElementById("stage3Hint").textContent =
+        q.hint;
+
+    let html = `
+        <div class="question-number">
+            QUESTION ${stage3Index + 1} OF ${stage3Questions.length}
+        </div>
+
+        <div class="scenario">
+            🎪 <b>Festival situation:</b> Read carefully and choose the best expression.
+        </div>
+
+        <p class="question">${q.sentence}</p>
+
+        <div class="options">
+    `;
+
+    q.options.forEach((option, index) => {
+        html += `
+            <button class="option"
+                onclick="selectStage3Option(${index})"
+                id="stage3Option${index}">
+                ${option}
+            </button>
+        `;
+    });
+
+    html += `
+        </div>
+
+        <div class="feedback" id="stage3Feedback"></div>
+    `;
+
+    container.innerHTML = html;
+}
+
+let stage3Selected = null;
+
+function selectStage3Option(index) {
+
+    if (stage3Answered) return;
+
+    stage3Selected = index;
+
+    document.querySelectorAll("#stage3Question .option").forEach(
+        (button, i) => {
+            button.classList.toggle("selected", i === index);
+        }
+    );
+
+    document.getElementById("stage3Next").disabled = false;
+    document.getElementById("stage3Next").textContent = "Check →";
+}
+
+function nextStage3Question() {
+
+    if (stage3Selected === null) return;
+
+    const q = stage3Questions[stage3Index];
+
+    if (!stage3Answered) {
+
+        stage3Answered = true;
+        totalQuestions++;
+
+        const buttons =
+            document.querySelectorAll("#stage3Question .option");
+
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+
+        if (stage3Selected === q.answer) {
+
+            score++;
+            expressionResults[q.expression] = true;
+
+            buttons[stage3Selected].classList.remove("selected");
+            buttons[stage3Selected].classList.add("correct");
+
+            showFeedback(
+                "stage3Feedback",
+                true,
+                "✓ Correct! " + q.explanation
+            );
+
+        } else {
+
+            buttons[stage3Selected].classList.remove("selected");
+            buttons[stage3Selected].classList.add("incorrect");
+
+            buttons[q.answer].classList.add("correct");
+
+            showFeedback(
+                "stage3Feedback",
+                false,
+                "✗ Not quite. " + q.explanation
+            );
+        }
+
+        document.getElementById("scoreLabel").textContent =
+            "Score: " + score;
+
+        if (stage3Index === stage3Questions.length - 1) {
+            document.getElementById("stage3Next").textContent =
+                "Final Challenge →";
+        } else {
+            document.getElementById("stage3Next").textContent =
+                "Next Question →";
+        }
+
+    } else {
+
+        if (stage3Index < stage3Questions.length - 1) {
+
+            stage3Index++;
+            stage3Selected = null;
+            renderStage3();
+
+        } else {
+
+            goToStage(4);
+        }
+    }
+}
+
+function renderStage4() {
+
+    const container = document.getElementById("stage4Question");
+    const q = stage4Questions[stage4Index];
+
+    stage4Answered = false;
+
+    document.getElementById("stage4Next").disabled = true;
+    document.getElementById("stage4Next").textContent = "Check →";
+
+    document.getElementById("stage4Hint").classList.remove("show");
+    document.getElementById("stage4Hint").textContent =
+        q.hint;
+
+    let html = `
+        <div class="question-number">
+            FINAL QUESTION ${stage4Index + 1} OF ${stage4Questions.length}
+        </div>
+
+        <p class="question">${q.sentence}</p>
+
+        <div class="options">
+    `;
+
+    q.options.forEach((option, index) => {
+        html += `
+            <button class="option"
+                onclick="selectStage4Option(${index})"
+                id="stage4Option${index}">
+                ${option}
+            </button>
+        `;
+    });
+
+    html += `
+        </div>
+
+        <div class="feedback" id="stage4Feedback"></div>
+    `;
+
+    container.innerHTML = html;
+}
+
+let stage4Selected = null;
+
+function selectStage4Option(index) {
+
+    if (stage4Answered) return;
+
+    stage4Selected = index;
+
+    document.querySelectorAll("#stage4Question .option").forEach(
+        (button, i) => {
+            button.classList.toggle("selected", i === index);
+        }
+    );
+
+    document.getElementById("stage4Next").disabled = false;
+}
+
+function nextStage4Question() {
+
+    if (stage4Selected === null) return;
+
+    const q = stage4Questions[stage4Index];
+
+    if (!stage4Answered) {
+
+        stage4Answered = true;
+        totalQuestions++;
+
+        const buttons =
+            document.querySelectorAll("#stage4Question .option");
+
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+
+        if (stage4Selected === q.answer) {
+
+            score++;
+            expressionResults[q.expression] = true;
+
+            buttons[stage4Selected].classList.remove("selected");
+            buttons[stage4Selected].classList.add("correct");
+
+            showFeedback(
+                "stage4Feedback",
+                true,
+                "✓ Correct! " + q.explanation
+            );
+
+        } else {
+
+            buttons[stage4Selected].classList.remove("selected");
+            buttons[stage4Selected].classList.add("incorrect");
+
+            buttons[q.answer].classList.add("correct");
+
+            showFeedback(
+                "stage4Feedback",
+                false,
+                "✗ Not quite. " + q.explanation
+            );
+        }
+
+        document.getElementById("scoreLabel").textContent =
+            "Score: " + score;
+
+        if (stage4Index === stage4Questions.length - 1) {
+            document.getElementById("stage4Next").textContent =
+                "See My Result →";
+        } else {
+            document.getElementById("stage4Next").textContent =
+                "Next Question →";
+        }
+
+    } else {
+
+        if (stage4Index < stage4Questions.length - 1) {
+
+            stage4Index++;
+            stage4Selected = null;
+            renderStage4();
+
+        } else {
+
+            showResult();
+        }
+    }
+}
+
+function showFeedback(id, correct, message) {
+
+    const element = document.getElementById(id);
+
+    element.className =
+        "feedback show " + (correct ? "correct" : "incorrect");
+
+    element.textContent = message;
+}
+
+function showResult() {
+
+    clearInterval(timerInterval);
+
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+    });
+
+    document.getElementById("result").classList.add("active");
+
+    document.getElementById("stageLabel").textContent =
+        "Complete!";
+
+    document.getElementById("progressFill").style.width =
+        "100%";
+
+    document.getElementById("scoreLabel").textContent =
+        "Score: " + score;
+
+    /*
+        The matching activity has 6 points.
+        Stage 3 has 6 points.
+        Stage 4 has 6 points.
+        Total = 18 points.
+    */
+    const maxScore = 18;
+    const percentage = Math.round((score / maxScore) * 100);
+
+    document.getElementById("finalScore").textContent =
+        percentage + "%";
+
+    let message;
+
+    if (percentage >= 90) {
+        message = "Excellent! You can use these expressions confidently. 🌟";
+    } else if (percentage >= 70) {
+        message = "Great job! You understand most of the expressions. 👍";
+    } else if (percentage >= 50) {
+        message = "Good effort! Review the expressions once more and try again.";
+    } else {
+        message = "Keep practicing! Look at the examples and try the activity again.";
+    }
+
+    document.getElementById("finalMessage").textContent =
+        message;
+
+    const list = document.getElementById("resultList");
+
+    list.innerHTML = "";
+
+    Object.keys(expressionResults).forEach(expression => {
+
+        const item = document.createElement("div");
+        item.className = "result-item";
+
+        const status = expressionResults[expression];
+
+        item.innerHTML = `
+            <span><b>${expression}</b></span>
+            <span class="result-status ${status ? "success" : "review"}">
+                ${status ? "✓ Strong" : "↻ Review"}
+            </span>
+        `;
+
+        list.appendChild(item);
+    });
+}
+
+function restartActivity() {
+
+    score = 0;
+    totalQuestions = 0;
+    answeredQuestions = 0;
+
+    matchedPairs = 0;
+
+    selectedExpression = null;
+    selectedMeaning = null;
+
+    stage3Index = 0;
+    stage4Index = 0;
+
+    stage3Selected = null;
+    stage4Selected = null;
+
+    Object.keys(expressionResults).forEach(key => {
+        expressionResults[key] = false;
+    });
+
+    timerSeconds = 600;
+
+    updateTimer();
+
+    document.getElementById("scoreLabel").textContent =
+        "Score: 0";
+
+    document.getElementById("progressFill").style.width =
+        "25%";
+
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+    });
+
+    document.getElementById("stage1").classList.add("active");
+
+    document.getElementById("stageLabel").textContent =
+        "Stage 1 of 4";
+
+    startTimer();
+}
+
+startTimer();
+
+</script>
+
+</body>
+</html>
