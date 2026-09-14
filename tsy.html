@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mystery English Quiz</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, "Noto Sans KR", sans-serif;
+  background: #0d1117;
+  color: #f0f6fc;
+}
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  min-height: 100vh;
+  margin: auto;
+  padding: 20px;
+}
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+.panel {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 18px;
+  padding: 28px;
+  margin-top: 20px;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 42px;
+  letter-spacing: 2px;
+}
+
+h2 {
+  font-size: 28px;
+}
+
+.subtitle {
+  color: #8b949e;
+  margin-bottom: 25px;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 13px 22px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #58a6ff;
+  color: #0d1117;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.next-btn {
+  display: none;
+  margin-top: 22px;
+}
+
+.back-small {
+  background: #30363d;
+  color: #f0f6fc;
+  font-size: 13px;
+  padding: 8px 13px;
+}
+
+.start-box {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.magnifier {
+  font-size: 80px;
+  margin-bottom: 10px;
+}
+
+.case-number {
+  color: #58a6ff;
+  font-size: 15px;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+.start-title {
+  margin: 10px 0;
+}
+
+.start-subtitle {
+  color: #8b949e;
+  margin-bottom: 30px;
+}
+
+/* Progress */
+.progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  color: #8b949e;
+  font-size: 13px;
+}
+
+.progress-number {
+  color: #58a6ff;
+  font-weight: bold;
+}
+
+/* Character cards */
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.character-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+.character-icon {
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+.character-card h3 {
+  margin-bottom: 12px;
+}
+
+.character-card p {
+  color: #8b949e;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* Meaning */
+.meaning-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.flip-card {
+  height: 160px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.flip-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-front,
+.flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #30363d;
+}
+
+.flip-front {
+  background: #0d1117;
+  color: #58a6ff;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.flip-back {
+  background: #1f2937;
+  transform: rotateY(180deg);
+  color: #f0f6fc;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Matching */
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.match-card {
+  height: 105px;
+  cursor: pointer;
+  perspective: 800px;
+}
+
+.match-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.35s;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.match-card.open .match-inner,
+.match-card.matched .match-inner {
+  transform: rotateY(180deg);
+}
+
+.match-front,
+.match-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  border: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px;
+}
+
+.match-front {
+  background: #21262d;
+  color: #8b949e;
+  font-size: 24px;
+}
+
+.match-back {
+  background: #0d1117;
+  color: #f0f6fc;
+  transform: rotateY(180deg);
+  font-size: 13px;
+}
+
+.match-card[data-type="english"] .match-back {
+  color: #58a6ff;
+  font-weight: bold;
+}
+
+.match-card.matched .match-back {
+  border-color: #3fb950;
+  color: #3fb950;
+}
+
+/* Quiz */
+.quiz-question {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.question-number {
+  color: #58a6ff;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.english-sentence {
+  font-size: 21px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.korean-sentence {
+  color: #8b949e;
+  font-size: 15px;
+  line-height: 1.5;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #30363d;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.option-btn {
+  background: #21262d;
+  color: #f0f6fc;
+  border: 1px solid #30363d;
+  text-align: left;
+}
+
+.option-btn:hover {
+  background: #30363d;
+}
+
+.option-btn.correct {
+  background: #1f6f43;
+  border-color: #3fb950;
+  color: white;
+}
+
+.option-btn.wrong {
+  background: #6e2b2b;
+  border-color: #f85149;
+  color: white;
+}
+
+.feedback {
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #161b22;
+  display: none;
+  line-height: 1.6;
+}
+
+.feedback.show {
+  display: block;
+}
+
+.feedback.correct {
+  border: 1px solid #3fb950;
+}
+
+.feedback.wrong {
+  border: 1px solid #f85149;
+}
+
+.hint-earned {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #1f2937;
+  color: #79c0ff;
+  font-size: 14px;
+}
+
+/* Hint panel */
+.hint-panel {
+  position: sticky;
+  top: 10px;
+  z-index: 5;
+  background: #111820;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+}
+
+.hint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.hint-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #58a6ff;
+  letter-spacing: 1px;
+}
+
+.hint-count {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.hint-list {
+  margin-top: 10px;
+  display: none;
+}
+
+.hint-list.show {
+  display: block;
+}
+
+.hint-item {
+  font-size: 12px;
+  color: #c9d1d9;
+  padding: 6px 0;
+  border-top: 1px solid #21262d;
+  line-height: 1.4;
+}
+
+.no-hint {
+  font-size: 12px;
+  color: #6e7681;
+  padding-top: 8px;
+}
+
+/* Mystery */
+.mystery-intro {
+  color: #8b949e;
+  line-height: 1.6;
+}
+
+.clue-summary {
+  margin-top: 20px;
+  padding: 16px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+}
+
+.clue-summary h3 {
+  color: #58a6ff;
+  font-size: 16px;
+}
+
+.final-hints {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.final-hint {
+  background: #161b22;
+  border-left: 3px solid #58a6ff;
+  padding: 9px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.suspect-choice {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.suspect-btn {
+  background: #21262d;
+  color: #f0f6fc;
+  border: 1px solid #30363d;
+  padding: 20px 10px;
+}
+
+.suspect-btn:hover {
+  border-color: #58a6ff;
+}
+
+.mystery-feedback {
+  display: none;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+.mystery-feedback.show {
+  display: block;
+}
+
+.mystery-feedback.correct {
+  border: 1px solid #3fb950;
+}
+
+.mystery-feedback.wrong {
+  border: 1px solid #f85149;
+}
+
+/* Final */
+.final-result {
+  text-align: center;
+  padding: 20px;
+}
+
+.case-solved {
+  font-size: 40px;
+  color: #3fb950;
+  margin-bottom: 15px;
+}
+
+.score-box {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.expression-recap {
+  text-align: left;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 20px;
+}
+
+.recap-item {
+  padding: 9px 0;
+  border-bottom: 1px solid #21262d;
+}
+
+.recap-item:last-child {
+  border-bottom: none;
+}
+
+.recap-eng {
+  color: #58a6ff;
+  font-weight: bold;
+}
+
+.recap-kor {
+  color: #8b949e;
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .app {
+    padding: 12px;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  .character-grid,
+  .meaning-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .match-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+
+  .suspect-choice {
+    grid-template-columns: 1fr;
+  }
+
+  .english-sentence {
+    font-size: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- START -->
+<section id="start" class="screen active">
+  <div class="start-box">
+    <div class="magnifier">🔎</div>
+    <div class="case-number">MYSTERY CASE #07</div>
+    <h1 class="start-title">THE MISSING KEY</h1>
+    <p class="start-subtitle">사라진 열쇠의 범인을 찾아라!</p>
+    <button onclick="goTo('characters')">START</button>
+  </div>
+</section>
+
+
+<!-- STEP 1 -->
+<section id="characters" class="screen">
+
+  <div class="progress">
+    <span>STEP 1</span>
+    <span class="progress-number">1 / 5</span>
+  </div>
+
+  <div class="panel">
+    <h2>용의자 소개</h2>
+    <p class="subtitle">사건 당시의 상황을 잘 기억해 두세요.</p>
+
+    <div class="character-grid">
+
+      <div class="character-card">
+        <div class="character-icon">👩‍🏫</div>
+        <h3>Ms. Kim</h3>
+        <p>
+          학교 도서관 담당자<br>
+          사건 당시 교무회의에 감
+        </p>
+      </div>
+
+      <div class="character-card">
+        <div class="character-icon">⚽</div>
+        <h3>Jake</h3>
+        <p>
+          축구부 학생<br>
+          사건 당시 축구 연습에 참여함
+        </p>
+      </div>
+
+      <div class="character-card">
+        <div class="character-icon">👨‍💼</div>
+        <h3>Mr. Lee</h3>
+        <p>
+          학교 직원<br>
+          사건 당시 혼자 남아 있었음
+        </p>
+      </div>
+
+    </div>
+
+    <button class="next-btn" style="display:inline-block"
+            onclick="goTo('meaning')">
+      NEXT
+    </button>
+  </div>
+</section>
+
+
+<!-- STEP 2 -->
+<section id="meaning" class="screen">
+
+  <div class="progress">
+    <span>STEP 2</span>
+    <span class="progress-number">2 / 5</span>
+  </div>
+
+  <div class="panel">
+    <h2>Meaning Check</h2>
+    <p class="subtitle">카드를 눌러 영어 표현의 뜻을 확인하세요.</p>
+
+    <div class="meaning-grid">
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">in charge of</div>
+          <div class="flip-back">
+            ~을 맡아서, 담당해서<br>
+            ~에게 맡겨져, 위탁되어
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">take part in</div>
+          <div class="flip-back">
+            ~에 참여(참가)하다,<br>
+            가담하다; 협력하다
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">figure out</div>
+          <div class="flip-back">
+            계산해 내다,<br>
+            생각해 내다, 이해하다
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">work on</div>
+          <div class="flip-back">
+            ~에 노력을 들이다,<br>
+            착수하다
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">cut down on</div>
+          <div class="flip-back">
+            ~을 줄이다
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front">make a difference</div>
+          <div class="flip-back">
+            차별을 두다,<br>
+            변화를 가져오다, 차이를 낳다,<br>
+            영향을 주다; 중요하다
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="next-btn" style="display:inline-block"
+            onclick="startMatching()">
+      NEXT
+    </button>
+  </div>
+</section>
+
+
+<!-- STEP 3 -->
+<section id="matching" class="screen">
+
+  <div class="progress">
+    <span>STEP 3</span>
+    <span class="progress-number">3 / 5</span>
+  </div>
+
+  <div class="panel">
+    <h2>Matching</h2>
+    <p class="subtitle">
+      영어 표현과 한국어 뜻을 찾아 짝을 맞추세요.
+    </p>
+
+    <div id="matchStatus"
+         style="color:#8b949e; margin-bottom:10px;">
+      6개의 짝을 찾아보세요!
+    </div>
+
+    <div id="matchGrid" class="match-grid"></div>
+
+    <button id="matchNext"
+            class="next-btn"
+            onclick="goTo('quiz')">
+      NEXT
+    </button>
+  </div>
+</section>
+
+
+<!-- STEP 4 QUIZ -->
+<section id="quiz" class="screen">
+
+  <div class="progress">
+    <span>STEP 4</span>
+    <span class="progress-number">4 / 5</span>
+  </div>
+
+  <!-- 작은 힌트 보관함 -->
+  <div class="hint-panel">
+
+    <div class="hint-header" onclick="toggleHints()">
+      <span class="hint-title">🔎 COLLECTED HINTS</span>
+      <span class="hint-count" id="hintCount">0 / 6</span>
+    </div>
+
+    <div id="hintList" class="hint-list">
+      <div class="no-hint">
+        아직 얻은 단서가 없습니다.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel">
+    <h2>Quiz</h2>
+    <p class="subtitle">
+      빈칸에 들어갈 알맞은 표현을 고르세요.
+    </p>
+
+    <div id="quizContainer"></div>
+
+    <button id="quizNext"
+            class="next-btn"
+            onclick="nextQuiz()">
+      NEXT
+    </button>
+  </div>
+</section>
+
+
+<!-- STEP 5 FINAL MYSTERY -->
+<section id="mystery" class="screen">
+
+  <div class="progress">
+    <span>STEP 5</span>
+    <span class="progress-number">5 / 5</span>
+  </div>
+
+  <!-- 최종 단계에서도 힌트 보관함 유지 -->
+  <div class="hint-panel">
+
+    <div class="hint-header" onclick="toggleHints()">
+      <span class="hint-title">🔎 COLLECTED HINTS</span>
+      <span class="hint-count" id="finalHintCount">0 / 6</span>
+    </div>
+
+    <div id="finalHintList" class="hint-list show">
+      <div class="no-hint">
+        아직 얻은 단서가 없습니다.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel">
+
+    <h2>Final Mystery</h2>
+
+    <p class="mystery-intro">
+      지금까지 얻은 단서를 이용해 사라진 열쇠의 범인을 찾아보세요.
+      <br>
+      <b>모든 단서를 다시 확인한 뒤 용의자를 선택하세요!</b>
+    </p>
+
+    <div class="clue-summary">
+      <h3>📌 Collected Clues</h3>
+      <div id="finalHints" class="final-hints"></div>
+    </div>
+
+    <h3 style="margin-top:25px;">
+      Who took the key?
+    </h3>
+
+    <div class="suspect-choice">
+
+      <button class="suspect-btn"
+              onclick="chooseSuspect('Ms. Kim')">
+        👩‍🏫<br><br>
+        Ms. Kim
+      </button>
+
+      <button class="suspect-btn"
+              onclick="chooseSuspect('Jake')">
+        ⚽<br><br>
+        Jake
+      </button>
+
+      <button class="suspect-btn"
+              onclick="chooseSuspect('Mr. Lee')">
+        👨‍💼<br><br>
+        Mr. Lee
+      </button>
+
+    </div>
+
+    <div id="mysteryFeedback"
+         class="mystery-feedback"></div>
+
+    <button id="resultBtn"
+            class="next-btn"
+            onclick="showFinal()">
+      SEE RESULT
+    </button>
+
+  </div>
+</section>
+
+
+<!-- FINAL RESULT -->
+<section id="final" class="screen">
+
+  <div class="panel">
+    <div class="final-result">
+
+      <div class="case-solved">CASE SOLVED! 🔎</div>
+
+      <h2>범인은 Mr. Lee!</h2>
+
+      <p class="subtitle">
+        모든 단서를 종합하면 Mr. Lee가 가장 의심스럽습니다.
+      </p>
+
+      <div class="score-box">
+        <h3>QUIZ SCORE</h3>
+        <div id="finalScore"
+             style="font-size:32px; color:#58a6ff; font-weight:bold;">
+        </div>
+      </div>
+
+      <div class="expression-recap">
+
+        <h3>Expression Recap</h3>
+
+        <div class="recap-item">
+          <span class="recap-eng">in charge of</span>
+          <span class="recap-kor">~을 맡다, 담당하다</span>
+        </div>
+
+        <div class="recap-item">
+          <span class="recap-eng">take part in</span>
+          <span class="recap-kor">~에 참여하다</span>
+        </div>
+
+        <div class="recap-item">
+          <span class="recap-eng">figure out</span>
+          <span class="recap-kor">생각해 내다, 이해하다</span>
+        </div>
+
+        <div class="recap-item">
+          <span class="recap-eng">work on</span>
+          <span class="recap-kor">~에 노력을 들이다, 착수하다</span>
+        </div>
+
+        <div class="recap-item">
+          <span class="recap-eng">cut down on</span>
+          <span class="recap-kor">~을 줄이다</span>
+        </div>
+
+        <div class="recap-item">
+          <span class="recap-eng">make a difference</span>
+          <span class="recap-kor">변화를 가져오다, 영향을 주다</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</div>
+
+
+<script>
+
+/* =========================
+   기본 화면 이동
+========================= */
+
+function goTo(id) {
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  document.getElementById(id).classList.add("active");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+/* =========================
+   Matching
+========================= */
+
+const expressions = [
+  {
+    id: 0,
+    english: "in charge of",
+    korean: "~을 맡아서, 담당해서 / ~에게 맡겨져, 위탁되어"
+  },
+  {
+    id: 1,
+    english: "take part in",
+    korean: "~에 참여(참가)하다 / 가담하다; 협력하다"
+  },
+  {
+    id: 2,
+    english: "figure out",
+    korean: "계산해 내다 / 생각해 내다 / 이해하다"
+  },
+  {
+    id: 3,
+    english: "work on",
+    korean: "~에 노력을 들이다 / 착수하다"
+  },
+  {
+    id: 4,
+    english: "cut down on",
+    korean: "~을 줄이다"
+  },
+  {
+    id: 5,
+    english: "make a difference",
+    korean: "차별을 두다 / 변화를 가져오다 / 차이를 낳다 / 영향을 주다; 중요하다"
+  }
+];
+
+let firstMatch = null;
+let secondMatch = null;
+let matchedPairs = 0;
+let matchingLocked = false;
+
+function startMatching() {
+  goTo("matching");
+  createMatching();
+}
+
+function createMatching() {
+
+  const grid = document.getElementById("matchGrid");
+  grid.innerHTML = "";
+
+  firstMatch = null;
+  secondMatch = null;
+  matchedPairs = 0;
+  matchingLocked = false;
+
+  let cards = [];
+
+  expressions.forEach(exp => {
+
+    cards.push({
+      id: exp.id,
+      type: "english",
+      text: exp.english
+    });
+
+    cards.push({
+      id: exp.id,
+      type: "korean",
+      text: exp.korean
+    });
+
+  });
+
+  cards.sort(() => Math.random() - 0.5);
+
+  cards.forEach(card => {
+
+    const div = document.createElement("div");
+
+    div.className = "match-card";
+    div.dataset.id = card.id;
+    div.dataset.type = card.type;
+
+    div.innerHTML = `
+      <div class="match-inner">
+        <div class="match-front">?</div>
+        <div class="match-back">${card.text}</div>
+      </div>
+    `;
+
+    div.addEventListener("click", () => selectMatchCard(div));
+
+    grid.appendChild(div);
+  });
+
+  document.getElementById("matchStatus").textContent =
+    "6개의 짝을 찾아보세요!";
+
+  document.getElementById("matchNext").style.display = "none";
+}
+
+function selectMatchCard(card) {
+
+  if (matchingLocked) return;
+  if (card.classList.contains("matched")) return;
+  if (card === firstMatch) return;
+
+  card.classList.add("open");
+
+  if (!firstMatch) {
+    firstMatch = card;
+    return;
+  }
+
+  secondMatch = card;
+  matchingLocked = true;
+
+  const sameId =
+    firstMatch.dataset.id === secondMatch.dataset.id;
+
+  const differentType =
+    firstMatch.dataset.type !== secondMatch.dataset.type;
+
+  if (sameId && differentType) {
+
+    firstMatch.classList.add("matched");
+    secondMatch.classList.add("matched");
+
+    matchedPairs++;
+
+    document.getElementById("matchStatus").textContent =
+      "Correct!";
+
+    setTimeout(() => {
+
+      firstMatch = null;
+      secondMatch = null;
+      matchingLocked = false;
+
+      if (matchedPairs === expressions.length) {
+
+        document.getElementById("matchStatus").textContent =
+          "Correct! 모든 짝을 맞췄습니다.";
+
+        document.getElementById("matchNext").style.display =
+          "inline-block";
+      }
+
+    }, 500);
+
+  } else {
+
+    document.getElementById("matchStatus").textContent =
+      "Try again!";
+
+    setTimeout(() => {
+
+      firstMatch.classList.remove("open");
+      secondMatch.classList.remove("open");
+
+      firstMatch = null;
+      secondMatch = null;
+      matchingLocked = false;
+
+      document.getElementById("matchStatus").textContent =
+        "다시 찾아보세요!";
+
+    }, 800);
+  }
+}
+
+
+/* =========================
+   Hints
+========================= */
+
+const hints = [];
+
+function addHint(text) {
+
+  if (hints.includes(text)) return;
+
+  hints.push(text);
+
+  updateHints();
+}
+
+function updateHints() {
+
+  const hintList = document.getElementById("hintList");
+  const finalHintList = document.getElementById("finalHintList");
+
+  const countText = hints.length + " / 6";
+
+  document.getElementById("hintCount").textContent = countText;
+  document.getElementById("finalHintCount").textContent = countText;
+
+  if (hints.length === 0) {
+
+    hintList.innerHTML =
+      `<div class="no-hint">아직 얻은 단서가 없습니다.</div>`;
+
+    finalHintList.innerHTML =
+      `<div class="no-hint">아직 얻은 단서가 없습니다.</div>`;
+
+    return;
+  }
+
+  const html = hints.map((hint, index) => `
+    <div class="hint-item">
+      <b>Hint ${index + 1}.</b> ${hint}
+    </div>
+  `).join("");
+
+  hintList.innerHTML = html;
+  finalHintList.innerHTML = html;
+
+  const finalHints = document.getElementById("finalHints");
+
+  finalHints.innerHTML = hints.map((hint, index) => `
+    <div class="final-hint">
+      <b>Hint ${index + 1}</b> — ${hint}
+    </div>
+  `).join("");
+}
+
+function toggleHints() {
+
+  const list = document.getElementById("hintList");
+
+  list.classList.toggle("show");
+}
+
+
+/* =========================
+   Quiz
+========================= */
+
+const quizData = [
+
+  {
+    question: "Mr. Lee is ______ the school library.",
+    korean: "Mr. Lee는 학교 도서관을 ______.",
+    answer: "in charge of",
+    options: [
+      "in charge of",
+      "take part in",
+      "figure out",
+      "cut down on"
+    ],
+    hint: "Ms. Kim was not in the library at the time of the incident."
+  },
+
+  {
+    question: "Many students will ______ the school festival.",
+    korean: "많은 학생들이 학교 축제에 ______.",
+    answer: "take part in",
+    options: [
+      "work on",
+      "take part in",
+      "make a difference",
+      "in charge of"
+    ],
+    hint: "Jake was participating in soccer practice from 3:05 to 3:20."
+  },
+
+  {
+    question: "We need to ______ who took the key.",
+    korean: "우리는 누가 열쇠를 가져갔는지 ______ 해야 한다.",
+    answer: "figure out",
+    options: [
+      "figure out",
+      "work on",
+      "take part in",
+      "cut down on"
+    ],
+    hint: "The key disappeared at exactly 3:10 PM."
+  },
+
+  {
+    question: "The students are ______ their science project.",
+    korean: "학생들은 과학 프로젝트를 ______.",
+    answer: "work on",
+    options: [
+      "make a difference",
+      "work on",
+      "in charge of",
+      "figure out"
+    ],
+    hint: "Someone was alone inside the school at 3:10 PM."
+  },
+
+  {
+    question: "Our school wants to ______ plastic use.",
+    korean: "우리 학교는 플라스틱 사용을 ______ 원한다.",
+    answer: "cut down on",
+    options: [
+      "cut down on",
+      "take part in",
+      "work on",
+      "figure out"
+    ],
+    hint: "The CCTV was turned off for two minutes at 3:10 PM."
+  },
+
+  {
+    question: "One small action can ______.",
+    korean: "작은 행동 하나가 ______ 할 수 있다.",
+    answer: "make a difference",
+    options: [
+      "make a difference",
+      "cut down on",
+      "in charge of",
+      "take part in"
+    ],
+    hint: "The missing key was found in a drawer in Mr. Lee's room."
+  }
+
+];
+
+let currentQuiz = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function startQuiz() {
+
+  currentQuiz = 0;
+  quizScore = 0;
+  quizAnswered = false;
+
+  renderQuiz();
+}
+
+function renderQuiz() {
+
+  const container =
+    document.getElementById("quizContainer");
+
+  const data = quizData[currentQuiz];
+
+  quizAnswered = false;
+
+  container.innerHTML = `
+    <div class="quiz-question">
+
+      <div class="question-number">
+        QUESTION ${currentQuiz + 1} / ${quizData.length}
+      </div>
+
+      <div class="english-sentence">
+        ${data.question}
+      </div>
+
+      <div class="korean-sentence">
+        해석: ${data.korean}
+      </div>
+
+      <div class="options">
+        ${data.options.map(option => `
+          <button
+            class="option-btn"
+            onclick="checkQuiz('${option.replace(/'/g, "\\'")}', this)">
+            ${option}
+          </button>
+        `).join("")}
+      </div>
+
+      <div id="quizFeedback" class="feedback"></div>
+
+    </div>
+  `;
+
+  document.getElementById("quizNext").style.display =
+    "none";
+}
+
+function checkQuiz(selected, button) {
+
+  if (quizAnswered) return;
+
+  quizAnswered = true;
+
+  const data = quizData[currentQuiz];
+  const feedback = document.getElementById("quizFeedback");
+
+  document.querySelectorAll(".option-btn").forEach(btn => {
+    btn.disabled = true;
+  });
+
+  if (selected === data.answer) {
+
+    quizScore++;
+
+    button.classList.add("correct");
+
+    feedback.className = "feedback correct show";
+
+    feedback.innerHTML = `
+      <b>Correct! 🎉</b>
+      <div class="hint-earned">
+        🔎 <b>New Hint:</b> ${data.hint}
+      </div>
+    `;
+
+    addHint(data.hint);
+
+  } else {
+
+    button.classList.add("wrong");
+
+    document.querySelectorAll(".option-btn").forEach(btn => {
+      if (btn.textContent.trim() === data.answer) {
+        btn.classList.add("correct");
+      }
+    });
+
+    feedback.className = "feedback wrong show";
+
+    feedback.innerHTML = `
+      <b>Try again!</b><br>
+      정답: <b>${data.answer}</b>
+    `;
+  }
+
+  document.getElementById("quizNext").style.display =
+    "inline-block";
+}
+
+function nextQuiz() {
+
+  if (!quizAnswered) return;
+
+  currentQuiz++;
+
+  if (currentQuiz < quizData.length) {
+    renderQuiz();
+  } else {
+    prepareMystery();
+  }
+}
+
+
+/* =========================
+   Final Mystery
+========================= */
+
+function prepareMystery() {
+
+  updateHints();
+
+  goTo("mystery");
+}
+
+let mysterySolved = false;
+
+function chooseSuspect(name) {
+
+  const feedback =
+    document.getElementById("mysteryFeedback");
+
+  if (name === "Mr. Lee") {
+
+    mysterySolved = true;
+
+    feedback.className =
+      "mystery-feedback correct show";
+
+    feedback.innerHTML = `
+      <b>Correct! 🎉</b><br>
+      단서를 모두 종합하면 Mr. Lee가 범인입니다.
+      <br><br>
+      🔎 열쇠가 사라진 시간에 학교에 혼자 있었고,
+      CCTV가 잠시 꺼졌으며,
+      마지막으로 열쇠가 그의 방에서 발견되었습니다.
+    `;
+
+    document.getElementById("resultBtn").style.display =
+      "inline-block";
+
+  } else {
+
+    feedback.className =
+      "mystery-feedback wrong show";
+
+    feedback.innerHTML = `
+      <b>Try again!</b><br>
+      지금까지 얻은 단서를 다시 확인해 보세요.
+    `;
+  }
+}
+
+
+/* =========================
+   Final Result
+========================= */
+
+function showFinal() {
+
+  document.getElementById("finalScore").textContent =
+    quizScore + " / 6";
+
+  goTo("final");
+}
+
+
+/* =========================
+   시작 시 Quiz 준비
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  updateHints();
+
+  /*
+    Meaning → Matching → Quiz로 넘어갈 때
+    Quiz를 처음 한 번만 준비한다.
+  */
+
+  const originalGoTo = window.goTo;
+
+});
+
+
+/*
+  Matching에서 NEXT를 눌렀을 때
+  Quiz가 바로 시작되도록 처리
+*/
+
+document.getElementById("matchNext").addEventListener(
+  "click",
+  () => {
+    startQuiz();
+  }
+);
+
+</script>
+
+</body>
+</html>
